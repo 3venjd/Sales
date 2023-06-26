@@ -6,9 +6,9 @@ namespace Sales.Shared.Entities
     {
         public int Id { get; set; }
 
-        [Display(Name = "País")]
-        [Required(ErrorMessage = "El Campo {0} es obligatorio")]
-        [MaxLength(100, ErrorMessage = "El Campo {0} no puede tener más de {1} caracteres")]
+        [Display(Name = "Country")]
+        [Required(ErrorMessage = "The field {0} is required")]
+        [MaxLength(100, ErrorMessage = "The field {0} can't have more than {1} characters")]
         public string Name { get; set; } = null!;
     }
 }

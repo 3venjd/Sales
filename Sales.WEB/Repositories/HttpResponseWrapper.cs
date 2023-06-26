@@ -18,7 +18,7 @@ namespace Sales.WEB.Repositories
         public T? Response { get; set; }
         public HttpResponseMessage HttpResponseMessage { get; set; }
 
-        public async Task<string?> GetErrorMessage()
+        public async Task<string?> GetErrorMessageAsync()
         {
             if (!Error)
             {

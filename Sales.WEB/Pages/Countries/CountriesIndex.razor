@@ -3,16 +3,16 @@
 @inject IRepository repository
 
 <h3>Countries</h3>
+
+<a class="btn btn-primary" href="/countries/create">New country</a>
 <GenericList MyList="Countries">
-    <Loading>
-        <p>Loading...</p>
-    </Loading>
+    
     <Body>
         <table class="table table-striped">
             <thead>
                 <tr>
                     <th></th>
-                    <th>Pais</th>
+                    <th>Country</th>
                 </tr>
             </thead>
             <tbody>
