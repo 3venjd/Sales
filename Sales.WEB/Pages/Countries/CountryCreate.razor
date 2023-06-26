@@ -19,12 +19,13 @@
             await sweetAlertService.FireAsync("Error", message);
             return;
         }
-        countryFrom!.FormPostedSuccessfully = true;
-        navigationMaganer.NavigateTo("/countries");
+
+        Return();
     }
 
     private void Return()
     {
+        countryFrom!.FormPostedSuccessfully = true;
         navigationMaganer.NavigateTo("/countries");
     }
 

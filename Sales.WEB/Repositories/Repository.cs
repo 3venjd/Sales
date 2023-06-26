@@ -23,7 +23,7 @@ namespace Sales.WEB.Repositories
             if (responseHttp.IsSuccessStatusCode)
             {
                 var response = await UnserializeAnswer<T>(responseHttp, _jsonDefaultOptions);
-                return new HttpResponseWrapper<T>(response, true, responseHttp);
+                return new HttpResponseWrapper<T>(response, false, responseHttp);
             }
 
             return new HttpResponseWrapper<T> (default,true, responseHttp);
