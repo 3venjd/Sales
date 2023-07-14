@@ -1,0 +1,112 @@
+﻿@page "/states/details/{StateId:int}"
+@inject IRepository repository
+@inject NavigationManager navigationManager
+@inject SweetAlertService sweetAlertService
+
+
+@if (state is null)
+{
+    <p>Cargando...</p>
+}
+else
+{
+    <h3>@state.Name</h3>
+    <div class="mb-2">
+        <a class="btn btn-primary" href="/cities/create/@StateId">New City</a>
+        <a class="btn btn-success" href="/countries/details/@state.CountryId">Back</a>
+    </div>
+
+    <GenericList MyList="state.Cities!.ToList()">
+
+        <Body>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>City</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var city in state.Cities!.ToList())
+                    {
+                        <tr>
+                            <td>
+                                @city.Name
+                            </td>
+                            <td>
+                                <a class="btn btn-warning" href="/cities/edit/@city.Id">Edit</a>
+                                <button class="btn btn-danger" @onclick=@(() => DeleteAsync(city.Id))>Delete</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </Body>
+    </GenericList>
+
+}
+
+@code {
+    private State? state;
+    private List<City>? cities;
+
+    [Parameter]
+    public int StateId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        var responseHttp = await repository.Get<State>($"/api/states/{StateId}");
+        if (responseHttp.Error)
+        {
+            if (responseHttp.HttpResponseMessage.StatusCode == HttpStatusCode.NotFound)
+            {
+                navigationManager.NavigateTo("/states");
+                return;
+            }
+
+            var message = await responseHttp.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+            return;
+        }
+
+        state = responseHttp.Response;
+    }
+
+    private async Task DeleteAsync(int CityId)
+    {
+        var result = await sweetAlertService.FireAsync(new SweetAlertOptions
+            {
+                Title = "Confirm",
+                Text = "¿Do you want delete the record?",
+                Icon = SweetAlertIcon.Question,
+                ShowCancelButton = true,
+                CancelButtonText = "No",
+                ConfirmButtonText = "Yes"
+            });
+
+        var confirm = string.IsNullOrEmpty(result.Value);
+
+        if (confirm)
+        {
+            return;
+        }
+
+        var responseHttp = await repository.Delete($"/api/cities/{CityId}");
+
+        if (responseHttp.Error)
+        {
+            if (responseHttp.HttpResponseMessage.StatusCode != HttpStatusCode.NotFound)
+            {
+                var message = await responseHttp.GetErrorMessageAsync();
+                await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+                return;
+            }
+        }
+        await LoadAsync();
+    }
+}
