@@ -12,7 +12,21 @@ else
 {
     <h3>@country.Name</h3>
     <div class="mb-2">
-        <a class="btn btn-primary" href="/states/create/@country.Id">New state/department</a>
+
+        <div class="mb-2" style="display: flex; flex-wrap:wrap; align-items:center;">
+            <div>
+                <a class="btn btn-primary" href="/states/create/@country.Id">New state/department</a>
+            </div>
+            <div class="mx-2">
+                <input id="titulo" placeholder="Search State" style="width: 400px;" type="text" class="form-control" @bind-value="Filter" />
+            </div>
+            <button type="button" class="btn btn-outline-primary" @onclick="ApplyFilterAsync">Filter</button>
+            <button type="button" class="btn btn-outline-danger" @onclick="CleanFilterAsync">Clean</button>
+        </div>
+
+
+
+        
         <a class="btn btn-success" href="/countries">Back</a>
     </div>
 
@@ -66,6 +80,15 @@ else
     [Parameter]
     public int Id { get; set; }
 
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string Page { get; set; } = string.Empty;
+
+
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string Filter { get; set; } = string.Empty;
+
     protected override async Task OnInitializedAsync()
     {
         await LoadAsync();
@@ -79,8 +102,25 @@ else
 
     private async Task LoadAsync(int page = 1)
     {
-        string url1 = $"api/states?id={Id}&page={page}";
-        string url2 = $"api/states/totalPages?id={Id}";
+
+        if (!string.IsNullOrWhiteSpace(Page))
+        {
+            page = Convert.ToInt32(Page);
+        }
+
+        string url1 = string.Empty;
+        string url2 = string.Empty;
+
+        if (string.IsNullOrEmpty(Filter))
+        {
+            url1 = $"api/states?id={Id}&page={page}";
+            url2 = $"api/states/totalPages?id={Id}";
+        }
+        else
+        {
+            url1 = $"api/states?id={Id}&page={page}&filter={Filter}";
+            url2 = $"api/states/totalPages?id={Id}&filter={Filter}";
+        }
 
         var responseHttp = await repository.Get<Country>($"api/countries/{Id}");
         var responseHttp2 = await repository.Get<List<State>>(url1);
@@ -122,5 +162,19 @@ else
             }
         }
         await LoadAsync();
+    }
+
+    private async Task CleanFilterAsync()
+    {
+        Filter = string.Empty;
+        await ApplyFilterAsync();
+    }
+
+    private async Task ApplyFilterAsync()
+    {
+        int page = 1;
+
+        await LoadAsync(page);
+        await SelectedPageAsync(page);
     }
 }
